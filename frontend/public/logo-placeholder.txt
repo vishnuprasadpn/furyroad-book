@@ -1,0 +1,8 @@
+Place your FuryRoad RC Club logo here as:
+- logo.png (recommended)
+- logo.svg (for best quality)
+- logo.jpg (alternative)
+
+The logo should be placed in this directory (frontend/public/)
+and will be accessible at /logo.png, /logo.svg, or /logo.jpg
+
