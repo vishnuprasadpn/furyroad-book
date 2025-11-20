@@ -12,6 +12,8 @@ const router = express.Router();
 const normalizeEmail = (email: string) => email.trim().toLowerCase();
 
 const loginCodeTTLMinutes = parseInt(process.env.LOGIN_CODE_TTL_MINUTES || '10', 10);
+const JWT_SECRET = process.env.JWT_SECRET || 'secret';
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
 
 // Request login code
 router.post('/request-code', async (req, res) => {
@@ -103,8 +105,8 @@ router.post('/login', async (req, res) => {
 
     const token = jwt.sign(
       { userId: user.id, username: user.username, role: user.role },
-      process.env.JWT_SECRET || 'secret',
-      { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+      JWT_SECRET,
+      { expiresIn: JWT_EXPIRES_IN }
     );
 
     res.json({

@@ -22,16 +22,17 @@ router.post('/', authenticate, checkPermission('make_sale'), async (req: AuthReq
   try {
     const {
       customer_id,
-      services,
-      menu_items,
+      services = [],
+      packages: salePackages = [],
+      menu_items = [],
       discount_amount = 0,
       payment_method,
       payment_reference,
       notes,
     } = req.body;
 
-    if (!services && !menu_items) {
-      return res.status(400).json({ error: 'At least one service or menu item required' });
+    if (services.length === 0 && salePackages.length === 0 && menu_items.length === 0) {
+      return res.status(400).json({ error: 'At least one service, package, or menu item required' });
     }
 
     if (!payment_method) {
@@ -47,7 +48,7 @@ router.post('/', authenticate, checkPermission('make_sale'), async (req: AuthReq
       await client.query('BEGIN');
 
       // Calculate totals
-      if (services && services.length > 0) {
+      if (services.length > 0) {
         for (const service of services) {
           const serviceResult = await client.query(
             'SELECT base_price FROM services WHERE id = $1',
@@ -64,8 +65,8 @@ router.post('/', authenticate, checkPermission('make_sale'), async (req: AuthReq
       }
 
       // Calculate packages total
-      if (packages && packages.length > 0) {
-        for (const pkg of packages) {
+      if (salePackages.length > 0) {
+        for (const pkg of salePackages) {
           const packageResult = await client.query(
             'SELECT base_price FROM packages WHERE id = $1',
             [pkg.package_id]
@@ -80,7 +81,7 @@ router.post('/', authenticate, checkPermission('make_sale'), async (req: AuthReq
         }
       }
 
-      if (menu_items && menu_items.length > 0) {
+      if (menu_items.length > 0) {
         for (const item of menu_items) {
           const itemResult = await client.query(
             'SELECT price, tax_rate FROM menu_items WHERE id = $1',
@@ -125,7 +126,7 @@ router.post('/', authenticate, checkPermission('make_sale'), async (req: AuthReq
       const sale = saleResult.rows[0];
 
       // Add sale services
-      if (services && services.length > 0) {
+      if (services.length > 0) {
         for (const service of services) {
           const serviceResult = await client.query(
             'SELECT base_price FROM services WHERE id = $1',
@@ -157,8 +158,8 @@ router.post('/', authenticate, checkPermission('make_sale'), async (req: AuthReq
       }
 
       // Add sale packages
-      if (packages && packages.length > 0) {
-        for (const pkg of packages) {
+      if (salePackages.length > 0) {
+        for (const pkg of salePackages) {
           const packageResult = await client.query(
             'SELECT base_price FROM packages WHERE id = $1',
             [pkg.package_id]
@@ -225,7 +226,7 @@ router.post('/', authenticate, checkPermission('make_sale'), async (req: AuthReq
       }
 
       // Add sale menu items
-      if (menu_items && menu_items.length > 0) {
+      if (menu_items.length > 0) {
         for (const item of menu_items) {
           const itemResult = await client.query(
             'SELECT price, tax_rate FROM menu_items WHERE id = $1',
@@ -271,12 +272,17 @@ router.post('/', authenticate, checkPermission('make_sale'), async (req: AuthReq
         );
 
         const saleItems = [
-          ...(services || []).map((s: any) => ({
+          ...services.map((s: any) => ({
             name: `Service ${s.service_id}`,
             quantity: s.quantity || 1,
             price: s.total_price || 0,
           })),
-          ...(menu_items || []).map((m: any) => ({
+          ...salePackages.map((pkg: any) => ({
+            name: `Package ${pkg.package_id}`,
+            quantity: pkg.quantity || 1,
+            price: pkg.total_price || 0,
+          })),
+          ...menu_items.map((m: any) => ({
             name: `Menu Item ${m.menu_item_id}`,
             quantity: m.quantity || 1,
             price: m.total_price || 0,
