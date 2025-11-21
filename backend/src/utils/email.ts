@@ -3,7 +3,9 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const transporter = nodemailer.createTransport({
+const hasSmtpConfig = process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASSWORD;
+
+const transporter = hasSmtpConfig ? nodemailer.createTransport({
   host: process.env.SMTP_HOST,
   port: parseInt(process.env.SMTP_PORT || '587'),
   secure: false,
@@ -11,7 +13,7 @@ const transporter = nodemailer.createTransport({
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASSWORD,
   },
-});
+}) : null;
 
 export const sendEmail = async (
   to: string,
@@ -20,6 +22,11 @@ export const sendEmail = async (
   text?: string,
   attachments?: { filename: string; content: string | Buffer }[]
 ) => {
+  if (!transporter) {
+    console.warn('SMTP not configured. Email not sent:', { to, subject });
+    return { messageId: 'mock-id', accepted: [to] };
+  }
+  
   try {
     const info = await transporter.sendMail({
       from: process.env.SMTP_FROM || 'FuryRoad RC Club <noreply@furyroadrc.com>',

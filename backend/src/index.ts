@@ -28,7 +28,15 @@ const getDbConnectionString = () => {
 };
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: [
+    'https://frontend-1ggbjdd3c-furyroad-rcs-projects.vercel.app',
+    'https://furyroad-rcs-projects.vercel.app',
+    /\.vercel\.app$/,
+    'http://localhost:3000'
+  ],
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
