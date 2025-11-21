@@ -37,11 +37,11 @@ export default function POS() {
   const fetchData = async () => {
     try {
       const [servicesRes, packagesRes, menuRes, tracksRes, carsRes] = await Promise.all([
-        api.get('/services').catch(err => ({ data: [] })),
-        api.get('/packages').catch(err => ({ data: [] })),
-        api.get('/menu').catch(err => ({ data: [] })),
-        api.get('/tracks').catch(err => ({ data: [] })),
-        api.get('/cars').catch(err => ({ data: [] })),
+        api.get('/services').catch(() => ({ data: [] })),
+        api.get('/packages').catch(() => ({ data: [] })),
+        api.get('/menu').catch(() => ({ data: [] })),
+        api.get('/tracks').catch(() => ({ data: [] })),
+        api.get('/cars').catch(() => ({ data: [] })),
       ]);
       setServices(servicesRes.data.filter((s: any) => s.is_active && !s.package_id));
       setPackages(packagesRes.data.filter((p: any) => p.is_active));
@@ -109,7 +109,7 @@ export default function POS() {
       } else {
         toast.error('Customer not found');
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to search customer');
     }
   };
@@ -128,7 +128,7 @@ export default function POS() {
 
     setLoading(true);
     try {
-      const { subtotal, discount, total } = calculateTotal();
+      const { discount } = calculateTotal();
 
       const saleData = {
         customer_id: customer?.id || null,
@@ -324,6 +324,43 @@ export default function POS() {
               })}
             </div>
           </div>
+
+          {/* Packages */}
+          {packages.length > 0 && (
+            <div className="card border-l-4 border-blue-500/60">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="p-2 bg-blue-500/20 rounded-lg">
+                  <Package className="w-5 h-5 text-blue-400" />
+                </div>
+                <h2 className="text-xl font-bold text-white">Combo Packages</h2>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                {packages.map((pkg) => (
+                  <div key={pkg.id} className="bg-gray-700/50 border border-gray-600 rounded-lg p-4 hover:border-blue-500 hover:bg-gray-700 transition-all">
+                    <div className="flex justify-between items-start mb-2">
+                      <h3 className="font-semibold text-white text-sm">{pkg.name}</h3>
+                      <span className="text-xs text-gray-400 bg-gray-800 px-2 py-0.5 rounded-full">
+                        {pkg.items_count || 0} items
+                      </span>
+                    </div>
+                    <p className="text-lg font-bold text-blue-400 mb-2">₹{pkg.base_price}</p>
+                    {pkg.description && (
+                      <p className="text-xs text-gray-400 mb-3 line-clamp-2">{pkg.description}</p>
+                    )}
+                    <button
+                      onClick={() => {
+                        addToCart('package', pkg);
+                        toast.success(`${pkg.name} added to cart`);
+                      }}
+                      className="btn-primary w-full text-sm py-2"
+                    >
+                      Add Package
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Menu Items */}
           <div className="card border-l-4 border-fury-red">

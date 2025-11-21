@@ -4,32 +4,34 @@ import toast from 'react-hot-toast';
 import { Plus, Edit, Trash2, Car } from 'lucide-react';
 import EmptyState from '../components/EmptyState';
 
+const emptyFormState = {
+  name: '',
+  model: '',
+  track_id: '',
+  base_price: '',
+  duration_minutes: '',
+  description: '',
+  image_url: '',
+  is_active: true,
+  china_rate_usd: '',
+  indian_conversion: '',
+  shipping_cost: '',
+  available_units: '',
+  total_units: '',
+  our_rate: '',
+  rate_difference: '',
+  hourly_charge: '',
+  max_minutes: '',
+  play_minutes: '',
+};
+
 export default function Cars() {
   const [cars, setCars] = useState<any[]>([]);
   const [tracks, setTracks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingCar, setEditingCar] = useState<any>(null);
-  const [formData, setFormData] = useState({
-    name: '',
-    model: '',
-    track_id: '',
-    base_price: '',
-    duration_minutes: '',
-    description: '',
-    image_url: '',
-    is_active: true,
-    china_rate_usd: '',
-    indian_conversion: '',
-    shipping_cost: '',
-    available_units: '',
-    total_units: '',
-    our_rate: '',
-    rate_difference: '',
-    hourly_charge: '',
-    max_minutes: '',
-    play_minutes: '',
-  });
+  const [formData, setFormData] = useState({ ...emptyFormState });
 
   useEffect(() => {
     fetchData();
@@ -79,26 +81,7 @@ export default function Cars() {
       }
       setShowModal(false);
       setEditingCar(null);
-      setFormData({
-        name: '',
-        model: '',
-        track_id: '',
-        base_price: '',
-        duration_minutes: '',
-        description: '',
-        image_url: '',
-        is_active: true,
-        china_rate_usd: '',
-        indian_conversion: '',
-        shipping_cost: '',
-        available_units: '',
-        total_units: '',
-        our_rate: '',
-        rate_difference: '',
-        hourly_charge: '',
-        max_minutes: '',
-        play_minutes: '',
-      });
+      setFormData({ ...emptyFormState });
       fetchData();
     } catch (error: any) {
       toast.error(error.response?.data?.error || 'Failed to save car');
@@ -150,16 +133,7 @@ export default function Cars() {
         <button
           onClick={() => {
             setEditingCar(null);
-            setFormData({
-              name: '',
-              model: '',
-              track_id: '',
-              base_price: '',
-              duration_minutes: '',
-              description: '',
-              image_url: '',
-              is_active: true,
-            });
+            setFormData({ ...emptyFormState });
             setShowModal(true);
           }}
           className="btn-primary"

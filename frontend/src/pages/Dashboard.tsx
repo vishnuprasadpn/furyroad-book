@@ -147,7 +147,7 @@ export default function Dashboard() {
                   label={(entry: any) => `${entry.type}: ₹${entry.revenue.toFixed(2)}`}
                   labelLine={false}
                 >
-                  {stats.sales_by_service.map((entry: any, index: number) => (
+                  {stats.sales_by_service.map((_: any, index: number) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>

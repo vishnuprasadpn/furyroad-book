@@ -273,7 +273,6 @@ export default function Tasks() {
                   value={formData.assignee_id}
                   onChange={(e) => setFormData({ ...formData, assignee_id: e.target.value })}
                   className="input-field"
-                  placeholder="Assignee"
                   title="Assignee"
                 >
                   <option value="">Unassigned</option>

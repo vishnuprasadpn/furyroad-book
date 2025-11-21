@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import api from '../lib/api';
 import { format } from 'date-fns';
-import { Search, Eye, Receipt } from 'lucide-react';
+import { Eye, Receipt } from 'lucide-react';
 import EmptyState from '../components/EmptyState';
 
 export default function Sales() {
