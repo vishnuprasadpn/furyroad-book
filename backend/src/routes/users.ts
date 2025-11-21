@@ -87,18 +87,18 @@ router.post('/', authenticate, requireMainAdmin, async (req: AuthRequest, res) =
 
       await logAudit(req, 'create', 'user', user.id, null, user, `Created ${role}: ${username}`);
 
-      // Email notifications disabled - only login codes and DB backups send emails
-      // try {
-      //   await sendUserWelcomeEmail(email, {
-      //     username,
-      //     fullName: full_name,
-      //     role,
-      //     password: password, // Send password only on creation
-      //   });
-      // } catch (emailError) {
-      //   console.error('Failed to send welcome email:', emailError);
-      //   // Don't fail the request if email fails
-      // }
+      // Send welcome email
+      try {
+        await sendUserWelcomeEmail(email, {
+          username,
+          fullName: full_name,
+          role,
+          password: password, // Send password only on creation
+        });
+      } catch (emailError) {
+        console.error('Failed to send welcome email:', emailError);
+        // Don't fail the request if email fails
+      }
 
       res.status(201).json(user);
     } catch (error) {
