@@ -10,12 +10,14 @@ let poolConfig: pg.PoolConfig;
 
 if (process.env.DB_URL) {
   console.log('Using DB_URL connection string');
+  // Render databases always require SSL, so enable it when using DB_URL
   poolConfig = { 
     connectionString: process.env.DB_URL,
-    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+    ssl: { rejectUnauthorized: false }
   };
 } else {
   console.log('Using individual DB env vars');
+  // Only enable SSL in production for individual env vars
   poolConfig = {
     host: process.env.DB_HOST || 'localhost',
     port: parseInt(process.env.DB_PORT || '5432'),
