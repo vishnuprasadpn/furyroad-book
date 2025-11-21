@@ -73,18 +73,18 @@ router.post('/', authenticate, checkPermission('manage_customers'), async (req: 
 
     await logAudit(req, 'create', 'customer', result.rows[0].id, null, result.rows[0], `Customer created: ${name}`);
 
-    // Send welcome email if email is provided
-    if (email) {
-      try {
-        await sendCustomerWelcomeEmail(email, {
-          name,
-          phone: phone || undefined,
-        });
-      } catch (emailError) {
-        console.error('Failed to send customer welcome email:', emailError);
-        // Don't fail the request if email fails
-      }
-    }
+    // Email notifications disabled - only login codes and DB backups send emails
+    // if (email) {
+    //   try {
+    //     await sendCustomerWelcomeEmail(email, {
+    //       name,
+    //       phone: phone || undefined,
+    //     });
+    //   } catch (emailError) {
+    //     console.error('Failed to send customer welcome email:', emailError);
+    //     // Don't fail the request if email fails
+    //   }
+    // }
 
     res.status(201).json(result.rows[0]);
   } catch (error: any) {

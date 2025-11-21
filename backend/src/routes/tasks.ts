@@ -21,33 +21,34 @@ const notifyTaskAction = async (
 ) => {
   const dueDate = task.due_date ? new Date(task.due_date).toLocaleString() : null;
 
-  try {
-    if (task.assignee_id) {
-      const assignee = await getUserById(task.assignee_id);
-      if (assignee?.email) {
-        await sendTaskActionEmail(assignee.email, {
-          title: task.title,
-          description: task.description || '',
-          dueDate,
-          priority: task.priority,
-          action,
-          actorName,
-          audience: 'assignee',
-        });
-      }
-    }
+  // Email notifications disabled - only login codes and DB backups send emails
+  // try {
+  //   if (task.assignee_id) {
+  //     const assignee = await getUserById(task.assignee_id);
+  //     if (assignee?.email) {
+  //       await sendTaskActionEmail(assignee.email, {
+  //         title: task.title,
+  //         description: task.description || '',
+  //         dueDate,
+  //         priority: task.priority,
+  //         action,
+  //         actorName,
+  //         audience: 'assignee',
+  //       });
+  //     }
+  //   }
 
-    if (MAIN_ADMIN_EMAIL) {
-      await sendTaskActionEmail(MAIN_ADMIN_EMAIL, {
-        title: task.title,
-        description: task.description || '',
-        dueDate,
-        priority: task.priority,
-        action,
-        actorName,
-        audience: 'admin',
-      });
-    }
+  //   if (MAIN_ADMIN_EMAIL) {
+  //     await sendTaskActionEmail(MAIN_ADMIN_EMAIL, {
+  //       title: task.title,
+  //       description: task.description || '',
+  //       dueDate,
+  //       priority: task.priority,
+  //       action,
+  //       actorName,
+  //       audience: 'admin',
+  //     });
+  //   }
   } catch (error) {
     console.error(`Failed to send task ${action} notifications:`, error);
   }

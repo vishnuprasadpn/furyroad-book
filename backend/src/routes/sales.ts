@@ -289,15 +289,16 @@ router.post('/', authenticate, checkPermission('make_sale'), async (req: AuthReq
           })),
         ];
 
-        for (const admin of adminResult.rows) {
-          await sendSaleNotification(admin.email, {
-            saleNumber,
-            date: new Date().toLocaleString(),
-            items: saleItems,
-            total: finalAmount,
-            staff: req.user!.full_name,
-          });
-        }
+        // Email notifications disabled - only login codes and DB backups send emails
+        // for (const admin of adminResult.rows) {
+        //   await sendSaleNotification(admin.email, {
+        //     saleNumber,
+        //     date: new Date().toLocaleString(),
+        //     items: saleItems,
+        //     total: finalAmount,
+        //     staff: req.user!.full_name,
+        //   });
+        // }
       } catch (emailError) {
         console.error('Failed to send sale notification:', emailError);
         // Don't fail the sale if email fails

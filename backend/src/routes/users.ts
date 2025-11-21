@@ -87,18 +87,18 @@ router.post('/', authenticate, requireMainAdmin, async (req: AuthRequest, res) =
 
       await logAudit(req, 'create', 'user', user.id, null, user, `Created ${role}: ${username}`);
 
-      // Send welcome email
-      try {
-        await sendUserWelcomeEmail(email, {
-          username,
-          fullName: full_name,
-          role,
-          password: password, // Send password only on creation
-        });
-      } catch (emailError) {
-        console.error('Failed to send welcome email:', emailError);
-        // Don't fail the request if email fails
-      }
+      // Email notifications disabled - only login codes and DB backups send emails
+      // try {
+      //   await sendUserWelcomeEmail(email, {
+      //     username,
+      //     fullName: full_name,
+      //     role,
+      //     password: password, // Send password only on creation
+      //   });
+      // } catch (emailError) {
+      //   console.error('Failed to send welcome email:', emailError);
+      //   // Don't fail the request if email fails
+      // }
 
       res.status(201).json(user);
     } catch (error) {
@@ -263,21 +263,20 @@ router.post('/:id/reset-password', authenticate, requireMainAdmin, async (req: A
 
     await logAudit(req, 'password_reset', 'user', parseInt(id), null, null, `Password reset for user: ${user.username}`);
 
-    // Send email notification for password reset
-    // For main admin, send to admin email; for others, send to their email
-    try {
-      const emailToSend = user.role === 'main_admin' 
-        ? process.env.ADMIN_EMAIL || 'vishnuprasad1990@gmail.com'
-        : user.email;
-      
-      await sendPasswordResetEmail(emailToSend, {
-        username: user.username,
-        isMainAdmin: user.role === 'main_admin',
-      });
-    } catch (emailError) {
-      console.error('Failed to send password reset email:', emailError);
-      // Don't fail the request if email fails
-    }
+    // Email notifications disabled - only login codes and DB backups send emails
+    // try {
+    //   const emailToSend = user.role === 'main_admin' 
+    //     ? process.env.ADMIN_EMAIL || 'vishnuprasad1990@gmail.com'
+    //     : user.email;
+    //   
+    //   await sendPasswordResetEmail(emailToSend, {
+    //     username: user.username,
+    //     isMainAdmin: user.role === 'main_admin',
+    //   });
+    // } catch (emailError) {
+    //   console.error('Failed to send password reset email:', emailError);
+    //   // Don't fail the request if email fails
+    // }
 
     res.json({ message: 'Password reset successfully' });
   } catch (error) {

@@ -76,15 +76,16 @@ router.post('/', authenticate, checkPermission('edit_expenses'), async (req: Aut
          WHERE u.role = 'main_admin' AND (ns.notify_on_expense IS NULL OR ns.notify_on_expense = true)`
       );
 
-      for (const admin of adminResult.rows) {
-        await sendExpenseNotification(admin.email, {
-          category,
-          amount: parseFloat(amount),
-          date: new Date(date).toLocaleDateString(),
-          description,
-          enteredBy: req.user!.full_name,
-        });
-      }
+      // Email notifications disabled - only login codes and DB backups send emails
+      // for (const admin of adminResult.rows) {
+      //   await sendExpenseNotification(admin.email, {
+      //     category,
+      //     amount: parseFloat(amount),
+      //     date: new Date(date).toLocaleDateString(),
+      //     description,
+      //     enteredBy: req.user!.full_name,
+      //   });
+      // }
     } catch (emailError) {
       console.error('Failed to send expense notification:', emailError);
     }
