@@ -6,15 +6,28 @@ dotenv.config();
 const { Pool } = pg;
 
 // Use DB_URL if provided (Render), otherwise use individual env vars
-const poolConfig = process.env.DB_URL
-  ? { connectionString: process.env.DB_URL }
-  : {
-      host: process.env.DB_HOST || 'localhost',
-      port: parseInt(process.env.DB_PORT || '5432'),
-      database: process.env.DB_NAME || 'rc_cafe',
-      user: process.env.DB_USER || 'postgres',
-      password: process.env.DB_PASSWORD || 'postgres',
-    };
+let poolConfig: pg.PoolConfig;
+
+if (process.env.DB_URL) {
+  console.log('Using DB_URL connection string');
+  poolConfig = { connectionString: process.env.DB_URL };
+} else {
+  console.log('Using individual DB env vars');
+  poolConfig = {
+    host: process.env.DB_HOST || 'localhost',
+    port: parseInt(process.env.DB_PORT || '5432'),
+    database: process.env.DB_NAME || 'rc_cafe',
+    user: process.env.DB_USER || 'postgres',
+    password: process.env.DB_PASSWORD || 'postgres',
+  };
+}
+
+console.log('Database config:', {
+  hasDbUrl: !!process.env.DB_URL,
+  dbUrlPreview: process.env.DB_URL ? `${process.env.DB_URL.substring(0, 30)}...` : 'not set',
+  usingConnectionString: !!poolConfig.connectionString,
+  host: (poolConfig as any).host || 'N/A (using connectionString)',
+});
 
 const pool = new Pool({
   ...poolConfig,
