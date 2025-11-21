@@ -10,7 +10,10 @@ let poolConfig: pg.PoolConfig;
 
 if (process.env.DB_URL) {
   console.log('Using DB_URL connection string');
-  poolConfig = { connectionString: process.env.DB_URL };
+  poolConfig = { 
+    connectionString: process.env.DB_URL,
+    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+  };
 } else {
   console.log('Using individual DB env vars');
   poolConfig = {
@@ -19,6 +22,7 @@ if (process.env.DB_URL) {
     database: process.env.DB_NAME || 'rc_cafe',
     user: process.env.DB_USER || 'postgres',
     password: process.env.DB_PASSWORD || 'postgres',
+    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
   };
 }
 
@@ -27,6 +31,7 @@ console.log('Database config:', {
   dbUrlPreview: process.env.DB_URL ? `${process.env.DB_URL.substring(0, 30)}...` : 'not set',
   usingConnectionString: !!poolConfig.connectionString,
   host: (poolConfig as any).host || 'N/A (using connectionString)',
+  sslEnabled: !!poolConfig.ssl,
 });
 
 const pool = new Pool({
