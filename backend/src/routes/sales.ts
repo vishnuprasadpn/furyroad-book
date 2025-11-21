@@ -289,16 +289,39 @@ router.post('/', authenticate, checkPermission('make_sale'), async (req: AuthReq
           })),
         ];
 
-        // Email notifications disabled - only login codes and DB backups send emails
-        // for (const admin of adminResult.rows) {
-        //   await sendSaleNotification(admin.email, {
-        //     saleNumber,
-        //     date: new Date().toLocaleString(),
-        //     items: saleItems,
-        //     total: finalAmount,
-        //     staff: req.user!.full_name,
-        //   });
-        // }
+        // Send sale notification to admins
+        for (const admin of adminResult.rows) {
+          await sendSaleNotification(admin.email, {
+            saleNumber,
+            date: new Date().toLocaleString(),
+            items: saleItems,
+            total: finalAmount,
+            staff: req.user!.full_name,
+          });
+        }
+        
+        // Send sale notification to customer if email is available
+        if (customer_id) {
+          const customerResult = await query(
+            'SELECT email, name FROM customers WHERE id = $1',
+            [customer_id]
+          );
+          
+          if (customerResult.rows.length > 0 && customerResult.rows[0].email) {
+            try {
+              await sendSaleNotification(customerResult.rows[0].email, {
+                saleNumber,
+                date: new Date().toLocaleString(),
+                items: saleItems,
+                total: finalAmount,
+                staff: req.user!.full_name,
+              });
+            } catch (customerEmailError) {
+              console.error('Failed to send sale notification to customer:', customerEmailError);
+              // Don't fail the sale if customer email fails
+            }
+          }
+        }
       } catch (emailError) {
         console.error('Failed to send sale notification:', emailError);
         // Don't fail the sale if email fails
