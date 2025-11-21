@@ -18,10 +18,26 @@ services:
         value: production
       - key: NODE_VERSION
         value: 18
-      - key: DB_URL
+      - key: DB_HOST
         fromDatabase:
           name: furyroad-db
-          property: connectionString
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: furyroad-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: furyroad-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: furyroad-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: furyroad-db
+          property: password
       - key: JWT_SECRET
         sync: false
       - key: JWT_EXPIRES_IN
