@@ -3,7 +3,6 @@ import { query } from '../db/connection';
 import { authenticate, AuthRequest } from '../middleware/auth';
 import { checkPermission } from '../middleware/permissions';
 import { logAudit } from '../utils/audit';
-import { sendExpenseNotification } from '../utils/email';
 
 const router = express.Router();
 
@@ -66,29 +65,6 @@ router.post('/', authenticate, checkPermission('edit_expenses'), async (req: Aut
     );
 
     await logAudit(req, 'create', 'expense', result.rows[0].id, null, result.rows[0], `Expense created: ${category} - ₹${amount}`);
-
-    // Send email notification to main admin
-    try {
-      const adminResult = await query(
-        `SELECT u.email, ns.notify_on_expense 
-         FROM users u
-         LEFT JOIN notification_settings ns ON u.id = ns.user_id
-         WHERE u.role = 'main_admin' AND (ns.notify_on_expense IS NULL OR ns.notify_on_expense = true)`
-      );
-
-      // Email notifications disabled - only login codes and DB backups send emails
-      // for (const admin of adminResult.rows) {
-      //   await sendExpenseNotification(admin.email, {
-      //     category,
-      //     amount: parseFloat(amount),
-      //     date: new Date(date).toLocaleDateString(),
-      //     description,
-      //     enteredBy: req.user!.full_name,
-      //   });
-      // }
-    } catch (emailError) {
-      console.error('Failed to send expense notification:', emailError);
-    }
 
     res.status(201).json(result.rows[0]);
   } catch (error) {

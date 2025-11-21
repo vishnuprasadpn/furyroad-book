@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import { query } from '../db/connection';
 import { authenticate, AuthRequest, requireMainAdmin } from '../middleware/auth';
 import { logAudit } from '../utils/audit';
-import { sendUserWelcomeEmail, sendPasswordResetEmail } from '../utils/email';
+import { sendUserWelcomeEmail } from '../utils/email';
 
 const router = express.Router();
 
@@ -263,20 +263,6 @@ router.post('/:id/reset-password', authenticate, requireMainAdmin, async (req: A
 
     await logAudit(req, 'password_reset', 'user', parseInt(id), null, null, `Password reset for user: ${user.username}`);
 
-    // Email notifications disabled - only login codes and DB backups send emails
-    // try {
-    //   const emailToSend = user.role === 'main_admin' 
-    //     ? process.env.ADMIN_EMAIL || 'vishnuprasad1990@gmail.com'
-    //     : user.email;
-    //   
-    //   await sendPasswordResetEmail(emailToSend, {
-    //     username: user.username,
-    //     isMainAdmin: user.role === 'main_admin',
-    //   });
-    // } catch (emailError) {
-    //   console.error('Failed to send password reset email:', emailError);
-    //   // Don't fail the request if email fails
-    // }
 
     res.json({ message: 'Password reset successfully' });
   } catch (error) {

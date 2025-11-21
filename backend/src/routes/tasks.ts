@@ -3,55 +3,15 @@ import { query } from '../db/connection';
 import { authenticate, AuthRequest } from '../middleware/auth';
 import { checkPermission } from '../middleware/permissions';
 import { logAudit } from '../utils/audit';
-import { sendTaskReminder, sendTaskActionEmail } from '../utils/email';
 
 const router = express.Router();
-const MAIN_ADMIN_EMAIL = process.env.MAIN_ADMIN_EMAIL || 'vishnuprasad1990@gmail.com';
-
-const getUserById = async (id?: number | null) => {
-  if (!id) return null;
-  const result = await query('SELECT id, email, full_name FROM users WHERE id = $1', [id]);
-  return result.rows[0] || null;
-};
 
 const notifyTaskAction = async (
   task: any,
   action: 'created' | 'updated' | 'completed' | 'deleted',
   actorName?: string
 ) => {
-  const dueDate = task.due_date ? new Date(task.due_date).toLocaleString() : null;
-
-  // Email notifications disabled - only login codes and DB backups send emails
-  // try {
-  //   if (task.assignee_id) {
-  //     const assignee = await getUserById(task.assignee_id);
-  //     if (assignee?.email) {
-  //       await sendTaskActionEmail(assignee.email, {
-  //         title: task.title,
-  //         description: task.description || '',
-  //         dueDate,
-  //         priority: task.priority,
-  //         action,
-  //         actorName,
-  //         audience: 'assignee',
-  //       });
-  //     }
-  //   }
-
-  //   if (MAIN_ADMIN_EMAIL) {
-  //     await sendTaskActionEmail(MAIN_ADMIN_EMAIL, {
-  //       title: task.title,
-  //       description: task.description || '',
-  //       dueDate,
-  //       priority: task.priority,
-  //       action,
-  //       actorName,
-  //       audience: 'admin',
-  //     });
-  //   }
-  } catch (error) {
-    console.error(`Failed to send task ${action} notifications:`, error);
-  }
+  // Task email notifications disabled
 };
 
 // Get all tasks
