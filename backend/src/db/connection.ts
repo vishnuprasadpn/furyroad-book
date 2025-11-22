@@ -5,14 +5,14 @@ dotenv.config();
 
 const { Pool } = pg;
 
-// Use DATABASE_URL (Railway) or DB_URL (Render) if provided, otherwise use individual env vars
+// Use DATABASE_URL (Railway/Fly.io) or DB_URL (Render) if provided, otherwise use individual env vars
 let poolConfig: pg.PoolConfig;
 
 const databaseUrl = process.env.DATABASE_URL || process.env.DB_URL;
 
 if (databaseUrl) {
   console.log('Using database connection string (DATABASE_URL or DB_URL)');
-  // Railway and Render databases require SSL
+  // Railway, Fly.io, and Render databases require SSL
   poolConfig = { 
     connectionString: databaseUrl,
     ssl: { rejectUnauthorized: false }

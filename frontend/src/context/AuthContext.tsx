@@ -39,6 +39,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } else {
       setLoading(false);
     }
+
+    // Keep-alive ping to prevent Fly.io app from sleeping
+    // Ping every 4 minutes (240 seconds) to keep app awake
+    const keepAliveInterval = setInterval(() => {
+      // Only ping if user is logged in (to avoid unnecessary requests)
+      if (localStorage.getItem('token')) {
+        api.get('/health')
+          .catch(() => {
+            // Silent fail - don't show errors for keep-alive pings
+          });
+      }
+    }, 4 * 60 * 1000); // 4 minutes
+
+    // Cleanup interval on unmount
+    return () => clearInterval(keepAliveInterval);
   }, []);
 
   const login = async (email: string, code?: string, password?: string) => {
