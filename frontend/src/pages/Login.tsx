@@ -44,7 +44,7 @@ export default function Login() {
     }
     setSendingCode(true);
     try {
-      await api.post('/api/auth/request-code', { email });
+      await api.post('/auth/request-code', { email });
       toast.success('Login code sent. Check your email.');
       setCodeSent(true);
       setCode('');
