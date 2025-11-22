@@ -7,7 +7,29 @@ async function migrate() {
   
   try {
     console.log('Running database migrations...');
-    const schema = readFileSync(join(__dirname, 'schema.sql'), 'utf8');
+    
+    // Try to read schema.sql from dist/db first, then fallback to src/db
+    let schemaPath = join(__dirname, 'schema.sql');
+    let schema: string;
+    
+    try {
+      schema = readFileSync(schemaPath, 'utf8');
+      console.log(`✓ Loaded schema from: ${schemaPath}`);
+    } catch (error) {
+      // Fallback: try reading from source location
+      const sourcePath = join(__dirname, '../../src/db/schema.sql');
+      console.log(`Schema not found at ${schemaPath}, trying ${sourcePath}...`);
+      try {
+        schema = readFileSync(sourcePath, 'utf8');
+        console.log(`✓ Loaded schema from: ${sourcePath}`);
+      } catch (fallbackError) {
+        console.error(`Failed to load schema from both locations:`);
+        console.error(`  - ${schemaPath}`);
+        console.error(`  - ${sourcePath}`);
+        throw new Error('Could not find schema.sql file');
+      }
+    }
+    
     await client.query(schema);
     console.log('Database migrations completed successfully!');
     

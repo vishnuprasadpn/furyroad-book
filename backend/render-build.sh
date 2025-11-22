@@ -21,6 +21,23 @@ echo "Building TypeScript..."
 npm run build
 
 echo "Copying schema.sql to dist..."
+# Ensure source file exists
+if [ ! -f "src/db/schema.sql" ]; then
+  echo "ERROR: src/db/schema.sql not found!"
+  ls -la src/db/ || echo "src/db/ directory does not exist"
+  exit 1
+fi
+
+# Create dist/db directory and copy schema
 mkdir -p dist/db
 cp src/db/schema.sql dist/db/schema.sql
+
+# Verify copy succeeded
+if [ ! -f "dist/db/schema.sql" ]; then
+  echo "ERROR: Failed to copy schema.sql to dist/db/"
+  exit 1
+fi
+
+echo "✓ schema.sql copied successfully to dist/db/schema.sql"
+ls -la dist/db/
 
