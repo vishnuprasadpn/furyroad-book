@@ -5,14 +5,16 @@ dotenv.config();
 
 const { Pool } = pg;
 
-// Use DB_URL if provided (Render), otherwise use individual env vars
+// Use DATABASE_URL (Railway) or DB_URL (Render) if provided, otherwise use individual env vars
 let poolConfig: pg.PoolConfig;
 
-if (process.env.DB_URL) {
-  console.log('Using DB_URL connection string');
-  // Render databases always require SSL, so enable it when using DB_URL
+const databaseUrl = process.env.DATABASE_URL || process.env.DB_URL;
+
+if (databaseUrl) {
+  console.log('Using database connection string (DATABASE_URL or DB_URL)');
+  // Railway and Render databases require SSL
   poolConfig = { 
-    connectionString: process.env.DB_URL,
+    connectionString: databaseUrl,
     ssl: { rejectUnauthorized: false }
   };
 } else {
@@ -29,8 +31,8 @@ if (process.env.DB_URL) {
 }
 
 console.log('Database config:', {
-  hasDbUrl: !!process.env.DB_URL,
-  dbUrlPreview: process.env.DB_URL ? `${process.env.DB_URL.substring(0, 30)}...` : 'not set',
+  hasDbUrl: !!databaseUrl,
+  dbUrlPreview: databaseUrl ? `${databaseUrl.substring(0, 30)}...` : 'not set',
   usingConnectionString: !!poolConfig.connectionString,
   host: (poolConfig as any).host || 'N/A (using connectionString)',
   sslEnabled: !!poolConfig.ssl,

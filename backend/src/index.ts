@@ -12,6 +12,7 @@ app.use(cors({
     'https://frontend-1ggbjdd3c-furyroad-rcs-projects.vercel.app',
     'https://furyroad-rcs-projects.vercel.app',
     /\.vercel\.app$/,
+    /\.railway\.app$/,
     'http://localhost:3000'
   ],
   credentials: true
