@@ -57,27 +57,6 @@ app.get('/api/health', (req, res) => {
 // Disabled: Expense summaries, task reminders, overdue task notifications, and database backup emails
 // Only login codes, welcome emails, and sale notifications send emails
 
-// Database backup weekly (every Monday at 03:00) - backup created but not emailed
-// cron.schedule('0 3 * * 1', async () => {
-//   try {
-//     const connectionString = getDbConnectionString();
-//     const backupName = `furyroad-db-backup-${new Date().toISOString().split('T')[0]}.sql`;
-//     const { stdout } = await execAsync(`pg_dump "${connectionString}"`, {
-//       maxBuffer: 1024 * 1024 * 100, // 100 MB
-//     });
-
-//     await sendDatabaseBackupEmail(MAIN_ADMIN_EMAIL, {
-//       backupContent: stdout,
-//       fileName: backupName,
-//       generatedAt: new Date().toLocaleString(),
-//     });
-
-//     console.log('Database backup emailed to main admin');
-//   } catch (error) {
-//     console.error('Error creating/sending database backup:', error);
-//   }
-// });
-
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
