@@ -5,7 +5,7 @@ app = "furyroad-backend"
 primary_region = "iad"  # Washington, D.C. (change to your preferred region)
 
 [build]
-  builder = "paketobuildpacks/builder:base"
+  dockerfile = "backend/Dockerfile"
 
 [env]
   NODE_ENV = "production"
