@@ -289,7 +289,7 @@ router.post('/', authenticate, checkPermission('make_sale'), async (req: AuthReq
           })),
         ];
 
-        // Send sale notification to admins
+        // Send sale notification to main admin only
         for (const admin of adminResult.rows) {
           await sendSaleNotification(admin.email, {
             saleNumber,
@@ -298,29 +298,6 @@ router.post('/', authenticate, checkPermission('make_sale'), async (req: AuthReq
             total: finalAmount,
             staff: req.user!.full_name,
           });
-        }
-        
-        // Send sale notification to customer if email is available
-        if (customer_id) {
-          const customerResult = await query(
-            'SELECT email, name FROM customers WHERE id = $1',
-            [customer_id]
-          );
-          
-          if (customerResult.rows.length > 0 && customerResult.rows[0].email) {
-            try {
-              await sendSaleNotification(customerResult.rows[0].email, {
-                saleNumber,
-                date: new Date().toLocaleString(),
-                items: saleItems,
-                total: finalAmount,
-                staff: req.user!.full_name,
-              });
-            } catch (customerEmailError) {
-              console.error('Failed to send sale notification to customer:', customerEmailError);
-              // Don't fail the sale if customer email fails
-            }
-          }
         }
       } catch (emailError) {
         console.error('Failed to send sale notification:', emailError);
