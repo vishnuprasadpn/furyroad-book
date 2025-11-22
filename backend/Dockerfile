@@ -1,14 +1,15 @@
 # Multi-stage build for Fly.io
+# Note: Build context is already in the backend directory
 FROM node:18-alpine AS builder
 
 WORKDIR /app
 
 # Copy package files
-COPY backend/package*.json ./
+COPY package*.json ./
 RUN npm ci --include=dev || npm install --include=dev
 
 # Copy source files
-COPY backend/ ./
+COPY . ./
 
 # Build TypeScript
 RUN npm run build
