@@ -91,13 +91,20 @@ router.get('/stats', authenticate, async (req: AuthRequest, res) => {
       `);
     }
 
-    // Tasks stats
+    // Tasks stats - filtered by user role
     const taskConditions: string[] = [];
     const taskParams: any[] = [];
     if (req.user!.role === 'staff') {
+      // Staff only see their own tasks
+      taskConditions.push(`assignee_id = $${taskParams.length + 1}`);
+      taskParams.push(req.user!.id);
+    } else if (req.user!.role === 'secondary_admin') {
+      // Secondary admins see their own tasks
       taskConditions.push(`assignee_id = $${taskParams.length + 1}`);
       taskParams.push(req.user!.id);
     }
+    // Main admin sees all tasks (no filter)
+    
     const tasksStats = await query(
       `
         SELECT status, COUNT(*) as count
@@ -106,6 +113,44 @@ router.get('/stats', authenticate, async (req: AuthRequest, res) => {
         GROUP BY status
       `,
       taskParams
+    );
+
+    // Get pending tasks for the current user (highlighted section)
+    const pendingTasksConditions: string[] = [];
+    const pendingTasksParams: any[] = [];
+    if (req.user!.role === 'staff' || req.user!.role === 'secondary_admin') {
+      pendingTasksConditions.push(`assignee_id = $${pendingTasksParams.length + 1}`);
+      pendingTasksParams.push(req.user!.id);
+    }
+    pendingTasksConditions.push(`status IN ($${pendingTasksParams.length + 1}, $${pendingTasksParams.length + 2})`);
+    pendingTasksParams.push('pending', 'in_progress');
+
+    const pendingTasks = await query(
+      `
+        SELECT 
+          t.id,
+          t.title,
+          t.description,
+          t.due_date,
+          t.priority,
+          t.status,
+          t.created_at,
+          u.full_name as assignee_name
+        FROM tasks t
+        LEFT JOIN users u ON t.assignee_id = u.id
+        WHERE ${pendingTasksConditions.join(' AND ')}
+        ORDER BY 
+          CASE t.priority
+            WHEN 'urgent' THEN 1
+            WHEN 'high' THEN 2
+            WHEN 'medium' THEN 3
+            WHEN 'low' THEN 4
+          END,
+          t.due_date ASC NULLS LAST,
+          t.created_at DESC
+        LIMIT 10
+      `,
+      pendingTasksParams
     );
 
     // Inventory low stock alerts
@@ -127,6 +172,7 @@ router.get('/stats', authenticate, async (req: AuthRequest, res) => {
       top_services: topServices.rows,
       expenses: expensesStats?.rows[0] || null,
       tasks: tasksStats.rows,
+      pending_tasks: pendingTasks.rows,
       low_stock_items: lowStockItems?.rows || null,
     });
   } catch (error) {

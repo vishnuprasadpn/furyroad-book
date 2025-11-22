@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../lib/api';
 import { useAuth } from '../context/AuthContext';
-import { DollarSign, ShoppingCart, TrendingUp, AlertTriangle, BarChart3, CheckSquare } from 'lucide-react';
+import { DollarSign, ShoppingCart, TrendingUp, AlertTriangle, BarChart3, CheckSquare, ArrowRight } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
 export default function Dashboard() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -197,6 +199,87 @@ export default function Dashboard() {
           </div>
         )}
       </div>
+
+      {/* Pending Tasks - Highlighted Section */}
+      {stats?.pending_tasks && stats.pending_tasks.length > 0 && (
+        <div className="card border-l-4 border-fury-orange bg-gradient-to-r from-fury-orange/10 to-transparent">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-2">
+              <div className="p-2 bg-fury-orange/20 rounded-lg">
+                <CheckSquare className="w-5 h-5 text-fury-orange" />
+              </div>
+              <h2 className="text-xl font-bold text-white">My Pending Tasks</h2>
+              <span className="px-3 py-1 bg-fury-orange text-white text-sm font-bold rounded-full">
+                {stats.pending_tasks.length}
+              </span>
+            </div>
+            <button
+              onClick={() => navigate('/tasks')}
+              className="btn-primary text-sm"
+            >
+              View All Tasks
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+          <div className="space-y-3">
+            {stats.pending_tasks.map((task: any) => {
+              const isOverdue = task.due_date && new Date(task.due_date) < new Date();
+              const priorityColors: Record<string, string> = {
+                urgent: 'border-red-500 bg-red-500/10',
+                high: 'border-orange-500 bg-orange-500/10',
+                medium: 'border-yellow-500 bg-yellow-500/10',
+                low: 'border-blue-500 bg-blue-500/10',
+              };
+              return (
+                <div
+                  key={task.id}
+                  className={`p-4 rounded-lg border-l-4 ${
+                    priorityColors[task.priority] || 'border-gray-500 bg-gray-700/50'
+                  } ${isOverdue ? 'animate-pulse border-red-500' : ''}`}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <h3 className="font-semibold text-white">{task.title}</h3>
+                        <span className={`px-2 py-0.5 text-xs font-bold rounded ${
+                          task.priority === 'urgent' ? 'bg-red-500 text-white' :
+                          task.priority === 'high' ? 'bg-orange-500 text-white' :
+                          task.priority === 'medium' ? 'bg-yellow-500 text-black' :
+                          'bg-blue-500 text-white'
+                        }`}>
+                          {task.priority.toUpperCase()}
+                        </span>
+                        {isOverdue && (
+                          <span className="px-2 py-0.5 text-xs font-bold rounded bg-red-500 text-white">
+                            OVERDUE
+                          </span>
+                        )}
+                      </div>
+                      {task.description && (
+                        <p className="text-sm text-gray-300 mb-2 line-clamp-2">{task.description}</p>
+                      )}
+                      <div className="flex items-center gap-4 text-xs text-gray-400">
+                        {task.due_date && (
+                          <span className={isOverdue ? 'text-red-400 font-semibold' : ''}>
+                            Due: {new Date(task.due_date).toLocaleDateString('en-IN', {
+                              day: 'numeric',
+                              month: 'short',
+                              year: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </span>
+                        )}
+                        <span className="capitalize">Status: {task.status.replace('_', ' ')}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Tasks Overview & Low Stock */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
