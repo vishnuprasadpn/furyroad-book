@@ -14,3 +14,6 @@ NODE_ENV=development npm install
 echo "Building TypeScript..."
 npm run build
 
+echo "Copying schema.sql to dist..."
+cp src/db/schema.sql dist/db/schema.sql
+

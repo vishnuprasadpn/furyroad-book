@@ -12,7 +12,7 @@ services:
     rootDir: backend
     buildCommand: bash render-build.sh
     startCommand: npm run start
-    postDeployCommand: npm run migrate
+    postDeployCommand: node dist/db/migrate.js
     envVars:
       - key: NODE_ENV
         value: production
