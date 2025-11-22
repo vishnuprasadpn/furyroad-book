@@ -6,8 +6,8 @@ apt-get update -y
 apt-get install -y postgresql-client
 apt-get clean
 
-echo "Installing Node dependencies..."
-npm install
+echo "Installing Node dependencies (including devDependencies for build)..."
+npm install --include=dev
 
 echo "Building TypeScript..."
 npm run build
