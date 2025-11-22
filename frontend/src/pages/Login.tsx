@@ -7,8 +7,12 @@ import api from '../lib/api';
 const CODE_LENGTH = 6;
 const RESEND_COOLDOWN = 60;
 
+type LoginMethod = 'password' | 'code';
+
 export default function Login() {
+  const [loginMethod, setLoginMethod] = useState<LoginMethod>('password');
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [code, setCode] = useState('');
   const [codeSent, setCodeSent] = useState(false);
   const [sendingCode, setSendingCode] = useState(false);
@@ -24,6 +28,14 @@ export default function Login() {
     }, 1000);
     return () => window.clearInterval(timer);
   }, [codeSent, resendTimer]);
+
+  useEffect(() => {
+    // Reset form when switching methods
+    setCode('');
+    setPassword('');
+    setCodeSent(false);
+    setResendTimer(0);
+  }, [loginMethod]);
 
   const handleSendCode = async () => {
     if (!email) {
@@ -46,22 +58,34 @@ export default function Login() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!codeSent) {
-      toast.error('Send the login code to your email first.');
-      return;
-    }
-    if (code.length !== CODE_LENGTH) {
-      toast.error('Enter the 6-digit code sent to your email.');
-      return;
+    
+    if (loginMethod === 'code') {
+      if (!codeSent) {
+        toast.error('Send the login code to your email first.');
+        return;
+      }
+      if (code.length !== CODE_LENGTH) {
+        toast.error('Enter the 6-digit code sent to your email.');
+        return;
+      }
+    } else {
+      if (!password) {
+        toast.error('Please enter your password.');
+        return;
+      }
     }
 
     setLoading(true);
     try {
-      await login(email, code);
+      if (loginMethod === 'code') {
+        await login(email, code);
+      } else {
+        await login(email, undefined, password);
+      }
       toast.success('Login successful!');
       navigate('/dashboard');
     } catch (error: any) {
-      toast.error(error.response?.data?.error || 'Invalid code, try again');
+      toast.error(error.response?.data?.error || 'Login failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -85,67 +109,113 @@ export default function Login() {
           </div>
           <h1 className="text-4xl font-bold text-fury-orange mb-2 tracking-tight">FuryRoad</h1>
           <p className="text-gray-300 font-semibold text-lg">RC Club</p>
-          <p className="text-gray-400 text-sm mt-2 font-medium">Secure Email Code Login</p>
         </div>
+
+        {/* Login Method Toggle */}
+        <div className="flex gap-2 mb-6 bg-gray-700 p-1 rounded-lg">
+          <button
+            type="button"
+            onClick={() => setLoginMethod('password')}
+            className={`flex-1 py-2 px-4 rounded-md text-sm font-semibold transition-colors ${
+              loginMethod === 'password'
+                ? 'bg-fury-orange text-white'
+                : 'text-gray-300 hover:text-white'
+            }`}
+          >
+            Password
+          </button>
+          <button
+            type="button"
+            onClick={() => setLoginMethod('code')}
+            className={`flex-1 py-2 px-4 rounded-md text-sm font-semibold transition-colors ${
+              loginMethod === 'code'
+                ? 'bg-fury-orange text-white'
+                : 'text-gray-300 hover:text-white'
+            }`}
+          >
+            Login Code
+          </button>
+        </div>
+
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-sm font-semibold text-gray-300 mb-2">
               Registered Email
             </label>
-            <div className="flex gap-2">
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="input-field flex-1"
-                placeholder="you@example.com"
-                required
-              />
-              <button
-                type="button"
-                onClick={handleSendCode}
-                disabled={sendingCode || !email || resendTimer > 0}
-                className="btn-secondary whitespace-nowrap disabled:opacity-50"
-              >
-                {sendingCode
-                  ? 'Sending...'
-                  : resendTimer > 0
-                  ? `Resend in ${resendTimer}s`
-                  : codeSent
-                  ? 'Resend Code'
-                  : 'Send Code'}
-              </button>
-            </div>
-            <p className="text-xs text-gray-400 mt-2">
-              We’ll email a one-time login code to this address.
-            </p>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="input-field w-full"
+              placeholder="you@example.com"
+              required
+            />
           </div>
 
-          <div>
-            <label className="block text-sm font-semibold text-gray-300 mb-2">
-              6-digit Code
-            </label>
-            <input
-              type="text"
-              value={code}
-              onChange={(e) => setCode(e.target.value.replace(/[^0-9]/g, '').slice(0, CODE_LENGTH))}
-              className="input-field tracking-[0.5rem] text-center text-lg"
-              placeholder="••••••"
-              disabled={!codeSent}
-            />
-            {!codeSent && (
-              <p className="text-xs text-gray-500 mt-2">
-                Send a code to your email to enable this field.
-              </p>
-            )}
-          </div>
+          {loginMethod === 'password' ? (
+            <div>
+              <label className="block text-sm font-semibold text-gray-300 mb-2">
+                Password
+              </label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="input-field w-full"
+                placeholder="Enter your password"
+                required
+              />
+            </div>
+          ) : (
+            <>
+              <div>
+                <label className="block text-sm font-semibold text-gray-300 mb-2">
+                  Login Code
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={code}
+                    onChange={(e) => setCode(e.target.value.replace(/[^0-9]/g, '').slice(0, CODE_LENGTH))}
+                    className="input-field flex-1 tracking-[0.5rem] text-center text-lg"
+                    placeholder="••••••"
+                    disabled={!codeSent}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleSendCode}
+                    disabled={sendingCode || !email || resendTimer > 0}
+                    className="btn-secondary whitespace-nowrap disabled:opacity-50"
+                  >
+                    {sendingCode
+                      ? 'Sending...'
+                      : resendTimer > 0
+                      ? `Resend in ${resendTimer}s`
+                      : codeSent
+                      ? 'Resend Code'
+                      : 'Send Code'}
+                  </button>
+                </div>
+                {!codeSent && (
+                  <p className="text-xs text-gray-400 mt-2">
+                    Click "Send Code" to receive a one-time login code via email.
+                  </p>
+                )}
+              </div>
+            </>
+          )}
 
           <button
             type="submit"
-            disabled={loading || !codeSent || code.length !== CODE_LENGTH}
+            disabled={
+              loading ||
+              !email ||
+              (loginMethod === 'code' && (!codeSent || code.length !== CODE_LENGTH)) ||
+              (loginMethod === 'password' && !password)
+            }
             className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? 'Verifying...' : 'Login'}
+            {loading ? 'Logging in...' : 'Login'}
           </button>
         </form>
       </div>

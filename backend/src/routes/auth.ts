@@ -60,23 +60,31 @@ router.post('/request-code', async (req, res) => {
   }
 });
 
-// Login with code
+// Login with code or password
 router.post('/login', async (req, res) => {
   try {
-    const { email: rawEmail, code } = req.body;
+    const { email: rawEmail, code, password } = req.body;
 
-    if (!rawEmail || !code) {
-      return res.status(400).json({ error: 'Email and code are required' });
+    if (!rawEmail) {
+      return res.status(400).json({ error: 'Email is required' });
+    }
+
+    if (!code && !password) {
+      return res.status(400).json({ error: 'Either code or password is required' });
+    }
+
+    if (code && password) {
+      return res.status(400).json({ error: 'Provide either code or password, not both' });
     }
 
     const email = normalizeEmail(rawEmail);
     const result = await query(
-      'SELECT id, username, email, full_name, role, is_active FROM users WHERE LOWER(email) = $1',
+      'SELECT id, username, email, full_name, role, is_active, password_hash FROM users WHERE LOWER(email) = $1',
       [email]
     );
 
     if (result.rows.length === 0) {
-      return res.status(401).json({ error: 'Invalid email or code' });
+      return res.status(401).json({ error: 'Invalid email or credentials' });
     }
 
     const user = result.rows[0];
@@ -85,23 +93,37 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Account is inactive' });
     }
 
-    const codeResult = await query(
-      `SELECT id
-       FROM login_codes
-       WHERE user_id = $1
-         AND code = $2
-         AND used = false
-         AND expires_at >= NOW()
-       ORDER BY created_at DESC
-       LIMIT 1`,
-      [user.id, code]
-    );
+    // Login with password
+    if (password) {
+      if (!user.password_hash) {
+        return res.status(401).json({ error: 'Password not set. Use login code or contact admin.' });
+      }
 
-    if (codeResult.rows.length === 0) {
-      return res.status(401).json({ error: 'Invalid or expired code. Request a new one.' });
+      const isValidPassword = await bcrypt.compare(password, user.password_hash);
+      if (!isValidPassword) {
+        return res.status(401).json({ error: 'Invalid email or password' });
+      }
     }
+    // Login with code
+    else if (code) {
+      const codeResult = await query(
+        `SELECT id
+         FROM login_codes
+         WHERE user_id = $1
+           AND code = $2
+           AND used = false
+           AND expires_at >= NOW()
+         ORDER BY created_at DESC
+         LIMIT 1`,
+        [user.id, code]
+      );
 
-    await query('UPDATE login_codes SET used = true WHERE id = $1', [codeResult.rows[0].id]);
+      if (codeResult.rows.length === 0) {
+        return res.status(401).json({ error: 'Invalid or expired code. Request a new one.' });
+      }
+
+      await query('UPDATE login_codes SET used = true WHERE id = $1', [codeResult.rows[0].id]);
+    }
 
     const token = jwt.sign(
       { userId: user.id, username: user.username, role: user.role },

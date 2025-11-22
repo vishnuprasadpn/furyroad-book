@@ -13,7 +13,7 @@ interface User {
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string, code: string) => Promise<void>;
+  login: (email: string, code?: string, password?: string) => Promise<void>;
   logout: () => void;
   loading: boolean;
 }
@@ -41,8 +41,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
-  const login = async (email: string, code: string) => {
-    const response = await api.post('/auth/login', { email, code });
+  const login = async (email: string, code?: string, password?: string) => {
+    const payload: { email: string; code?: string; password?: string } = { email };
+    if (code) {
+      payload.code = code;
+    } else if (password) {
+      payload.password = password;
+    }
+    const response = await api.post('/auth/login', payload);
     localStorage.setItem('token', response.data.token);
     localStorage.setItem('user', JSON.stringify(response.data.user));
     setUser(response.data.user);
