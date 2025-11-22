@@ -1,27 +1,17 @@
-import { execSync } from 'child_process';
-import { existsSync } from 'fs';
-import { join } from 'path';
+// Run migrations directly, then start server
+import { migrate } from './db/migrate';
 
-// Run migrations before starting the server
 async function start() {
   try {
-    const migratePath = join(__dirname, 'db', 'migrate.js');
-    
-    if (existsSync(migratePath)) {
-      console.log('Running database migrations...');
-      try {
-        execSync('node dist/db/migrate.js', { stdio: 'inherit', cwd: process.cwd() });
-        console.log('Migrations completed successfully!');
-      } catch (migrateError) {
-        console.error('Migration failed:', migrateError);
-        // Continue anyway - might be that tables already exist
-      }
-    } else {
-      console.log('Migration file not found at:', migratePath);
-      console.log('Skipping migrations...');
-    }
+    console.log('Starting application...');
+    console.log('Running database migrations...');
+    await migrate();
+    console.log('Migrations completed successfully!');
   } catch (error) {
-    console.error('Migration check error:', error);
+    console.error('Migration error:', error);
+    // Exit if migrations fail - we need the database to be set up
+    console.error('Failed to run migrations. Exiting...');
+    process.exit(1);
   }
   
   // Start the server

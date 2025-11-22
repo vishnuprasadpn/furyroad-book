@@ -53,13 +53,19 @@ async function migrate() {
   }
 }
 
-migrate()
-  .then(() => {
-    console.log('Migration process completed');
-    process.exit(0);
-  })
-  .catch((error) => {
-    console.error('Migration failed:', error);
-    process.exit(1);
-  });
+// Export migrate function for use in start.ts
+export { migrate };
+
+// If run directly (e.g., via postDeployCommand), execute and exit
+if (require.main === module) {
+  migrate()
+    .then(() => {
+      console.log('Migration process completed');
+      process.exit(0);
+    })
+    .catch((error) => {
+      console.error('Migration failed:', error);
+      process.exit(1);
+    });
+}
 
