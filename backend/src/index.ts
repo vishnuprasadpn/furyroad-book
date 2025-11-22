@@ -59,7 +59,7 @@ app.get('/api/health', (req, res) => {
 // Disabled: Expense summaries, task reminders, overdue task notifications, and database backup emails
 // Only login codes, welcome emails, and sale notifications send emails
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
 });
