@@ -11,7 +11,7 @@ services:
     branch: main
     rootDir: backend
     buildCommand: bash render-build.sh
-    startCommand: npm run start
+    startCommand: node dist/start.js
     postDeployCommand: node dist/db/migrate.js
     envVars:
       - key: NODE_ENV
