@@ -9,11 +9,8 @@ const PORT = process.env.PORT || 5001;
 // Middleware
 app.use(cors({
   origin: [
-    'https://frontend-1ggbjdd3c-furyroad-rcs-projects.vercel.app',
-    'https://furyroad-rcs-projects.vercel.app',
     /\.vercel\.app$/,
     /\.fly\.dev$/,
-    /\.railway\.app$/,
     'http://localhost:3000'
   ],
   credentials: true
