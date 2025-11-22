@@ -3,11 +3,17 @@ import axios from 'axios';
 // Ensure baseURL includes /api if VITE_API_URL is set without it
 const getBaseURL = () => {
   const envUrl = import.meta.env.VITE_API_URL;
-  if (!envUrl) return '/api';
-  // If VITE_API_URL doesn't end with /api, add it
-  if (envUrl.endsWith('/api')) return envUrl;
-  if (envUrl.endsWith('/')) return `${envUrl}api`;
-  return `${envUrl}/api`;
+  
+  // Default to live backend URL (Fly.io)
+  const defaultUrl = 'https://furyroad-backend.fly.dev';
+  
+  // Use environment variable if set, otherwise use live backend
+  const baseUrl = envUrl || defaultUrl;
+  
+  // If baseUrl doesn't end with /api, add it
+  if (baseUrl.endsWith('/api')) return baseUrl;
+  if (baseUrl.endsWith('/')) return `${baseUrl}api`;
+  return `${baseUrl}/api`;
 };
 
 const api = axios.create({
