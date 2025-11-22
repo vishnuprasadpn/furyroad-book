@@ -47,11 +47,17 @@ router.post('/request-code', async (req, res) => {
       [user.id, user.email.toLowerCase(), code, loginCodeTTLMinutes.toString()]
     );
 
-    await sendLoginCodeEmail(user.email, {
-      fullName: user.full_name,
-      code,
-      expiresInMinutes: loginCodeTTLMinutes,
-    });
+    // Try to send email, but don't fail the request if email fails
+    try {
+      await sendLoginCodeEmail(user.email, {
+        fullName: user.full_name,
+        code,
+        expiresInMinutes: loginCodeTTLMinutes,
+      });
+    } catch (emailError) {
+      console.error('Failed to send login code email:', emailError);
+      // Continue - code is still saved in database
+    }
 
     res.json({ message: 'Login code sent to your email.' });
   } catch (error) {
