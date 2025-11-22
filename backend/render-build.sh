@@ -15,5 +15,6 @@ echo "Building TypeScript..."
 npm run build
 
 echo "Copying schema.sql to dist..."
+mkdir -p dist/db
 cp src/db/schema.sql dist/db/schema.sql
 
