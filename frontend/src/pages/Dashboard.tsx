@@ -11,8 +11,6 @@ import {
   BarChart3, 
   CheckSquare, 
   ArrowRight,
-  Users,
-  Package,
   Calendar,
   Activity
 } from 'lucide-react';
