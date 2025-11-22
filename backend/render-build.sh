@@ -7,9 +7,10 @@ apt-get install -y postgresql-client
 apt-get clean
 
 echo "Installing Node dependencies (including devDependencies for build)..."
-# Ensure devDependencies are installed even if NODE_ENV is set to production
-# Use --include=dev flag (npm 7+) or --production=false (npm 6)
-npm install --include=dev || npm install --production=false || NODE_ENV=development npm install
+# Ensure devDependencies are installed - unset NODE_ENV to force installation
+# Try multiple methods to ensure compatibility
+unset NODE_ENV
+npm install --include=dev 2>&1 || npm install --production=false 2>&1 || npm install 2>&1
 
 echo "Building TypeScript..."
 npm run build
