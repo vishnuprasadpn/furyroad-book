@@ -79,23 +79,6 @@ CREATE TABLE IF NOT EXISTS rc_cars (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Services/Games
-CREATE TABLE IF NOT EXISTS services (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    type VARCHAR(50) NOT NULL CHECK (type IN ('track_session', 'car_rental', 'package', 'other')),
-    track_id INTEGER REFERENCES rc_tracks(id),
-    car_id INTEGER REFERENCES rc_cars(id),
-    package_id INTEGER REFERENCES packages(id),
-    duration_minutes INTEGER,
-    base_price DECIMAL(10, 2) NOT NULL,
-    cost DECIMAL(10, 2),
-    description TEXT,
-    is_active BOOLEAN DEFAULT true,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
 -- Menu Items (Café)
 CREATE TABLE IF NOT EXISTS menu_items (
     id SERIAL PRIMARY KEY,
@@ -111,6 +94,7 @@ CREATE TABLE IF NOT EXISTS menu_items (
 );
 
 -- Packages (Combined Track + Café Items)
+-- Must be created before services table which references it
 CREATE TABLE IF NOT EXISTS packages (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -120,6 +104,23 @@ CREATE TABLE IF NOT EXISTS packages (
     base_price DECIMAL(10, 2) NOT NULL,
     duration_minutes INTEGER,
     discount_percentage DECIMAL(5, 2) DEFAULT 0,
+    is_active BOOLEAN DEFAULT true,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Services/Games
+CREATE TABLE IF NOT EXISTS services (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    type VARCHAR(50) NOT NULL CHECK (type IN ('track_session', 'car_rental', 'package', 'other')),
+    track_id INTEGER REFERENCES rc_tracks(id),
+    car_id INTEGER REFERENCES rc_cars(id),
+    package_id INTEGER REFERENCES packages(id),
+    duration_minutes INTEGER,
+    base_price DECIMAL(10, 2) NOT NULL,
+    cost DECIMAL(10, 2),
+    description TEXT,
     is_active BOOLEAN DEFAULT true,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
