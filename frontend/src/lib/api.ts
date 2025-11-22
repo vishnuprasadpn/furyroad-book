@@ -1,7 +1,17 @@
 import axios from 'axios';
 
+// Ensure baseURL includes /api if VITE_API_URL is set without it
+const getBaseURL = () => {
+  const envUrl = import.meta.env.VITE_API_URL;
+  if (!envUrl) return '/api';
+  // If VITE_API_URL doesn't end with /api, add it
+  if (envUrl.endsWith('/api')) return envUrl;
+  if (envUrl.endsWith('/')) return `${envUrl}api`;
+  return `${envUrl}/api`;
+};
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '/api',
+  baseURL: getBaseURL(),
   headers: {
     'Content-Type': 'application/json',
   },

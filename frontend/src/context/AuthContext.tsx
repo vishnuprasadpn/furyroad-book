@@ -45,7 +45,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const keepAliveInterval = setInterval(() => {
       // Only ping if user is logged in (to avoid unnecessary requests)
       if (localStorage.getItem('token')) {
-        api.get('/health')
+        api.get('/api/health')
           .catch(() => {
             // Silent fail - don't show errors for keep-alive pings
           });
