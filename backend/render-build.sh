@@ -8,8 +8,8 @@ apt-get clean
 
 echo "Installing Node dependencies (including devDependencies for build)..."
 # Ensure devDependencies are installed even if NODE_ENV is set to production
-# Explicitly set NODE_ENV to development for npm install
-NODE_ENV=development npm install
+# Use --include=dev flag (npm 7+) or --production=false (npm 6)
+npm install --include=dev || npm install --production=false || NODE_ENV=development npm install
 
 echo "Building TypeScript..."
 npm run build
