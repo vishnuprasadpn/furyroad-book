@@ -48,10 +48,10 @@ export default function Layout() {
   ].filter(item => !user || item.roles.includes(user.role));
 
   return (
-    <div className="h-screen bg-gray-900 overflow-hidden">
+    <div className="h-screen bg-gray-900 overflow-hidden select-none">
       <div className="flex h-full">
         {/* Sidebar */}
-        <aside className="w-64 bg-fury-black shadow-2xl h-full flex flex-col border-r border-gray-800">
+        <aside className="w-64 bg-fury-black shadow-2xl h-full flex flex-col border-r border-gray-800 transition-all duration-300">
           <div className="p-6 border-b border-gray-800 flex-shrink-0 bg-gradient-to-br from-fury-black to-gray-900">
             <div className="flex items-center gap-3 mb-3">
               <img 
@@ -105,8 +105,10 @@ export default function Layout() {
         </aside>
 
         {/* Main content */}
-        <main className="flex-1 p-8 bg-gray-900 overflow-y-auto">
-          <Outlet />
+        <main className="flex-1 p-8 bg-gray-900 overflow-y-auto transition-all duration-200">
+          <div className="animate-fadeIn">
+            <Outlet />
+          </div>
         </main>
       </div>
     </div>

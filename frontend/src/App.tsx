@@ -17,6 +17,7 @@ import Users from './pages/Users';
 import AuditLogs from './pages/AuditLogs';
 import Cars from './pages/Cars';
 import Layout from './components/Layout';
+import PWAInstallPrompt from './components/PWAInstallPrompt';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode; roles?: string[] }> = ({ children, roles }) => {
   const { user, loading } = useAuth();
@@ -75,6 +76,7 @@ function App() {
     <AuthProvider>
       <Router>
         <Toaster position="top-right" />
+        <PWAInstallPrompt />
         <AppRoutes />
       </Router>
     </AuthProvider>
