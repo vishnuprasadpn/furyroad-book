@@ -36,9 +36,20 @@ A comprehensive web application for managing an RC Café business, including sal
 
 ## Setup Instructions
 
+### Quick Start Options
+
+1. **Local Development with Remote Database** (Recommended)
+   - Run frontend and backend locally
+   - Connect to remote database (Supabase, Railway, etc.)
+   - See [LOCAL_DEVELOPMENT.md](./LOCAL_DEVELOPMENT.md) for detailed guide
+
+2. **Full Local Setup**
+   - Run everything locally including PostgreSQL
+   - See instructions below
+
 ### Prerequisites
 - Node.js (v18 or higher)
-- PostgreSQL (v12 or higher)
+- PostgreSQL (v12 or higher) - OR remote database (Supabase, etc.)
 - npm or yarn
 
 ### Database Setup
