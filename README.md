@@ -152,13 +152,22 @@ The frontend will run on `http://localhost:3000`
 
 ### Running Both Together
 
-From the root directory:
+From the root directory, simply run:
 ```bash
-npm install
 npm run dev
 ```
 
-This will start both backend and frontend concurrently.
+Or use the start script:
+- **Mac/Linux**: `./start.sh`
+- **Windows**: `start.bat`
+
+This will start both backend and frontend concurrently with colored output.
+
+**What it does:**
+- Starts backend on `http://localhost:5001`
+- Starts frontend on `http://localhost:3000` (or Vite's default port)
+- Shows logs from both servers in the same terminal
+- Press `Ctrl+C` to stop both servers
 
 ## User Roles & Permissions
 

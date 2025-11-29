@@ -17,16 +17,34 @@ This guide explains how to run the entire application locally (frontend + backen
 
 ## 🚀 Quick Start
 
+### Option 1: One-Command Start (Recommended) ⚡
+
+From the root directory, simply run:
+
+```bash
+npm run dev
+```
+
+Or use the start script:
+- **Mac/Linux**: `./start.sh`
+- **Windows**: `start.bat`
+
+This will automatically:
+- Check and install dependencies if needed
+- Start both backend and frontend servers
+- Show colored output for each server
+
+### Option 2: Manual Setup
+
 ### Step 1: Clone and Install Dependencies
 
 ```bash
-# Install backend dependencies
-cd backend
-npm install
+# Install all dependencies
+npm run install:all
 
-# Install frontend dependencies
-cd ../frontend
-npm install
+# Or install individually:
+cd backend && npm install
+cd ../frontend && npm install
 ```
 
 ### Step 2: Configure Backend
@@ -75,25 +93,28 @@ This will:
 - Create indexes
 - Seed default admin user (username: `admin`, password: `admin123`)
 
-### Step 5: Start Backend Server
+### Step 5: Start Both Servers
 
+**Option A: One Command (Recommended)**
 ```bash
-cd backend
-npm run dev:local
+# From root directory
+npm run dev
 ```
 
-The backend will start on `http://localhost:5001`
-
-### Step 6: Start Frontend Server
-
-Open a new terminal:
-
+**Option B: Separate Terminals**
 ```bash
+# Terminal 1 - Backend
+cd backend
+npm run dev:local
+
+# Terminal 2 - Frontend
 cd frontend
 npm run dev
 ```
 
-The frontend will start on `http://localhost:3000` (or Vite's default port)
+The servers will start on:
+- **Backend**: `http://localhost:5001`
+- **Frontend**: `http://localhost:3000` (or Vite's default port)
 
 ## ✅ Verify Setup
 
